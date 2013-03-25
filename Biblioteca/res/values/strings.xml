@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Biblioteca</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="Busca">Pesquisar</string>
+
+    <string-array name="TipoBusca">
+        <item>Assunto</item>
+        <item>Autor</item>
+        <item>Título</item>
+        <item>Livre</item>
+    </string-array>
+
+    <string name="tvTitulo_text">Buscar por:</string>
+    <string name="tvBusca_text">Pesquisa:</string>
+    <string name="etPesquisa_text">Digite o termo da pesquisa</string>
+    <string name="title_activity_exibir_resultados">Resultados</string>
+
+</resources>
