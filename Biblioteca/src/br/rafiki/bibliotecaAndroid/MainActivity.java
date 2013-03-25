@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
 
-			 new ParserHtml(this).execute(busca,
+			 new ParserSearch(this).execute(busca,
 					tipo);
 	
 		} else {

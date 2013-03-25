@@ -15,7 +15,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-public class ParserHtml extends AsyncTask<String, Void, List<Resultado>> {
+public class ParserSearch extends AsyncTask<String, Void, List<Resultado>> {
 
 	/**
 	 * @param args
@@ -30,7 +30,7 @@ public class ParserHtml extends AsyncTask<String, Void, List<Resultado>> {
 	private Context context;
 	
 
-	public ParserHtml(Context context) {
+	public ParserSearch(Context context) {
 		this.context = context;
 	}
 
