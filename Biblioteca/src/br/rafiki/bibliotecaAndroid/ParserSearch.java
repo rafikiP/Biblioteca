@@ -71,6 +71,8 @@ public class ParserSearch extends AsyncTask<String, Void, List<Resultado>> {
 		a = "";
 		String x = "";
 		String j = "carrega_dados_acervo";
+		
+		
 		while ((a = (bufferedReader.readLine())) != null) {
 			x = x + a;
 			if (isCancelled()) 
