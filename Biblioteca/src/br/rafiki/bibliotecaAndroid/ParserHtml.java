@@ -178,7 +178,10 @@ public class ParserHtml extends AsyncTask<String, Void, List<Resultado>> {
 	protected void onPreExecute() {
 		progressDialog = new ProgressDialog(context);
 		progressDialog.setCanceledOnTouchOutside(false);
-		ProgressDialog.show(context, "Aguarde", "Buscando resultados...");
+		//progressDialog.show(context, "Aguarde", "Buscando resultados...");
+		progressDialog.setMessage("Buscando resultados!");
+		progressDialog.setTitle("Aguarde");
+		progressDialog.show();
 		progressDialog.setOnCancelListener(new OnCancelListener() {
 
 			@Override
