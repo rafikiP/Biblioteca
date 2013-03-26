@@ -60,10 +60,11 @@ public class ParserSearch extends AsyncTask<String, Void, List<Resultado>> {
 				+ "&rsargs[]=&rsargs[]=%2C&rsargs[]=palavra&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=obra&rsargs[]=5109bb6450fdb&rsargs[]=";
 		URL url = new URL(link);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setReadTimeout(30000 /* milliseconds */);
+		conn.setReadTimeout(130000 /* milliseconds */);
 		conn.setRequestMethod("GET");
 		conn.setDoInput(true);
 		conn.connect();
+		
 		InputStreamReader inputReader = new InputStreamReader(
 				conn.getInputStream(),"ISO-8859-1");
 		BufferedReader bufferedReader = (new BufferedReader(inputReader));
