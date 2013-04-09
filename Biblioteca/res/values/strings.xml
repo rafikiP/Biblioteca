@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Biblioteca</string>
-    <string name="hello_world"></string>
+    <string name="app_name">UFBORIUM</string>
     <string name="menu_settings">Settings</string>
     <string name="Busca">Buscar</string>
 
@@ -18,5 +17,8 @@
     <string name="etPesquisa_text">Digite o termo da pesquisa</string>
     <string name="title_activity_exibir_resultados">Resultados</string>
     <string name="title_activity_detalhes">Detalhes</string>
+    <string name="title_activity_login">Login</string>
+    <string name="title_activity_emprestimo">Empréstimos</string>
+    <string name="btLogin_label">Login</string>
 
 </resources>

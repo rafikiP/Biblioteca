@@ -7,12 +7,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.xml.sax.SAXException;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,8 +15,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-
-public class ParserSearch extends AsyncTask<String, Void, List<Resultado>> {
+public class ParserHtml extends AsyncTask<String, Void, List<Resultado>> {
 
 	/**
 	 * @param args
@@ -35,73 +28,63 @@ public class ParserSearch extends AsyncTask<String, Void, List<Resultado>> {
 	private List<Resultado> resultados;
 	private ProgressDialog progressDialog;
 	private Context context;
-	private String resposta="";
+	
 
-	public ParserSearch(Context context) {
+	public ParserHtml(Context context) {
 		this.context = context;
 	}
 
-	public List<Resultado> executar(String Busca, String tipo,
-			String respostaPronta) throws IOException {
+	public List<Resultado> executar(String Busca, String tipo)
+			throws IOException {
 
 		String link;
 		String a;
 		String TipoBusca = "L";
 		String Buscar;
+		Buscar = Busca.replaceAll(" ", "%20");
+		if (tipo.equals("Assunto"))
+			TipoBusca = "S";
+		else if (tipo.equals("Título"))
+			TipoBusca = "T";
+		else if (tipo.equals("Autor"))
+			TipoBusca = "A";
+
 		String qtdResults = "35";
 		String[][] result = new String[35][3];
-		String x="";
+		link = "http://www.pergamum.bib.ufba.br/pergamum/biblioteca/index.php?resolution2=1024_1&tipo_pesquisa=&filtro_bibliotecas=&filtro_obras=&termo=&tipo_obra_selecionados=&rs=ajax_resultados&rst=&rsrnd=1359594166354&rsargs[]="
+				+ qtdResults
+				+ "&rsargs[]=0&rsargs[]="
+				+ TipoBusca
+				+ "&rsargs[]="
+				+ Buscar
+				+ "&rsargs[]=&rsargs[]=%2C&rsargs[]=palavra&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=obra&rsargs[]=5109bb6450fdb&rsargs[]=";
+		URL url = new URL(link);
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setReadTimeout(30000 /* milliseconds */);
+		conn.setRequestMethod("GET");
+		conn.setDoInput(true);
+		conn.connect();
+		InputStreamReader inputReader = new InputStreamReader(
+				conn.getInputStream(),"ISO-8859-1");
+		BufferedReader bufferedReader = (new BufferedReader(inputReader));
+
+		a = "";
+		String x = "";
 		String j = "carrega_dados_acervo";
-		if (respostaPronta == "") {
-			Buscar = Busca.replaceAll(" ", "%20");
-			if (tipo.equals("Assunto"))
-				TipoBusca = "S";
-			else if (tipo.equals("Título"))
-				TipoBusca = "T";
-			else if (tipo.equals("Autor"))
-				TipoBusca = "A";
-
-			link = "http://www.pergamum.bib.ufba.br/pergamum/biblioteca/index.php?resolution2=1024_1&tipo_pesquisa=&filtro_bibliotecas=&filtro_obras=&termo=&tipo_obra_selecionados=&rs=ajax_resultados&rst=&rsrnd=1359594166354&rsargs[]="
-					+ qtdResults
-					+ "&rsargs[]=0&rsargs[]="
-					+ TipoBusca
-					+ "&rsargs[]="
-					+ Buscar
-					+ "&rsargs[]=&rsargs[]=%2C&rsargs[]=palavra&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=&rsargs[]=obra&rsargs[]=5109bb6450fdb&rsargs[]=";
-			URL url = new URL(link);
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-			conn.setReadTimeout(130000 /* milliseconds */);
-			conn.setRequestMethod("GET");
-			conn.setDoInput(true);
-			conn.connect();
-
-			InputStreamReader inputReader = new InputStreamReader(
-					conn.getInputStream(), "ISO-8859-1");
-			BufferedReader bufferResposta = (new BufferedReader(inputReader));
-
-			a = "";
-
-			StringBuilder builder = new StringBuilder();
-
-			while ((a = (bufferResposta.readLine())) != null) {
-				builder.append(a);
-				if (isCancelled()) {
-					break;
-				}
+		while ((a = (bufferedReader.readLine())) != null) {
+			x = x + a;
+			if (isCancelled()) 
+			{
+				break;
 			}
-
-			resposta = builder.toString();
-			x=resposta;
-		} else
-			resposta = respostaPronta;
-			x=resposta;
+		}
 		int i = 0;
 		int f = 1;
 		// qtd resultados
 		int m = 0;
 		while (i != f) {
-			if (isCancelled()) {
+			if (isCancelled())
+			{
 				break;
 			}
 			i = x.indexOf(j);
@@ -179,19 +162,14 @@ public class ParserSearch extends AsyncTask<String, Void, List<Resultado>> {
 
 	@Override
 	protected List<Resultado> doInBackground(String... arg0) {
-
 		try {
-			if (arg0.length < 3)
-				return executar(arg0[0], arg0[1], "");
-			else
-				return executar(arg0[0], arg0[1], arg0[2]);
+			return executar(arg0[0], arg0[1]);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-
-			e.printStackTrace();
-			Toast.makeText(this.context, "Ocorreu um erro de conexão!",
-					Toast.LENGTH_LONG).show();
+			Toast.makeText(this.context, "Ocorreu um erro de conexão!", Toast.LENGTH_LONG).show();
 			cancel(true);
+			e.printStackTrace();
+			e.getMessage();
 		}
 		return null;
 	}
@@ -200,9 +178,6 @@ public class ParserSearch extends AsyncTask<String, Void, List<Resultado>> {
 	protected void onPreExecute() {
 		progressDialog = new ProgressDialog(context);
 		progressDialog.setCanceledOnTouchOutside(false);
-		// progressDialog.show(context, "Aguarde", "Buscando resultados...");
-		progressDialog.setMessage("Buscando resultados!");
-		progressDialog.setTitle("Aguarde");
 		progressDialog.show();
 		progressDialog.setOnCancelListener(new OnCancelListener() {
 
@@ -212,36 +187,33 @@ public class ParserSearch extends AsyncTask<String, Void, List<Resultado>> {
 				cancel(true);
 			}
 		});
+		
 
 	}
 
 	@Override
-	protected void onPostExecute(List<Resultado> resultados) {
-		if (resultados != null && resultados.size() > 0) {
-			Intent intent = new Intent(this.context, ExibirResultados.class);
-			intent.putExtra(MainActivity.MESSAGE_RESULTADOS,
-					(ArrayList<Resultado>) resultados);
-			progressDialog.dismiss();
-			this.context.startActivity(intent);
-		} else {
-
-			progressDialog.dismiss();
-			Toast.makeText(this.context, "Nenhum resultado encontrado",
-					Toast.LENGTH_LONG).show();
+	protected void onPostExecute(List<Resultado> resultados)
+	{
+		if(resultados.size()>0)
+		{
+		Intent intent=new Intent(this.context,ExibirResultados.class);
+		intent.putExtra(MainActivity.MESSAGE_RESULTADOS,(ArrayList<Resultado>) resultados);
+		progressDialog.dismiss();
+		this.context.startActivity(intent);
 		}
-		;
-
+		else
+		{
+			Toast.makeText(this.context, "Nenhum resultado encontrado", Toast.LENGTH_LONG)
+			.show();
+			progressDialog.dismiss();
+		};
+			
 	}
 
 	@Override
 	protected void onCancelled(List<Resultado> result) {
-	//	progressDialog.dismiss();
-		// Toast.makeText(this.context, "Cancelado", Toast.LENGTH_SHORT).show();
-
-	}
-
-	public String getResposta() {
-		return resposta;
+		Toast.makeText(this.context, "Cancelado", Toast.LENGTH_SHORT).show();
+	
 	}
 
 }

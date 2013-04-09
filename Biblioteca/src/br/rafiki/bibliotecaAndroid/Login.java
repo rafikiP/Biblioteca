@@ -6,72 +6,69 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.json.JSONException;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-public class ParserDetails extends AsyncTask<String, Void, String> {
+public class Login extends AsyncTask<String, Void, String> {
 
 	private Context context;
 	private ProgressDialog progressDialog;
-
-	public ParserDetails(Context context) {
+	private BufferedReader bufferResposta;
+	private boolean invalido=false;
+	public Login(Context context) {
 		this.context = context;
 	}
 
 	@Override
-	protected String doInBackground(String... arg0) {
+	protected String doInBackground(String... params) {
 		try {
-			try {
-				return detalhar(arg0[0]);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				cancel(true);
-			}
+			return Logar(params[0], params[1]);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			Toast.makeText(this.context, "Ocorreu um erro de conexão!",
-					Toast.LENGTH_LONG).show();
-			cancel(true);
 			e.printStackTrace();
-			e.getMessage();
 		}
-		return "";
+		return null;
 	}
 
-	private String detalhar(String idLivro) throws IOException, JSONException {
-		String link = "http://10.0.2.2:8080/servicoBiblioteca/detalhes/"
-				+ idLivro;
+	private String Logar(String matricula, String senha) throws IOException {
+		String link = "http://10.0.2.2:8080/servicoBiblioteca/emprestimo/"
+				+ matricula + "/" + senha;
 		URL url = new URL(link);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setReadTimeout(530000);
 		conn.connect();
+		conn.getInputStream();
 		InputStreamReader inputReader = new InputStreamReader(
 				conn.getInputStream(), "UTF-8");
-		BufferedReader bufferedReader = (new BufferedReader(inputReader));
+		 bufferResposta = (new BufferedReader(inputReader));
 
 		String linha, resposta;
 		StringBuilder builder = new StringBuilder();
-		while ((linha = bufferedReader.readLine()) != null) {
+		while ((linha = bufferResposta.readLine()) != null) {
 			builder.append(linha);
 		}
 		resposta = builder.toString();
-		System.out.println(resposta);
+		
+		if("{\"valido\":\"false\"}".equals(resposta))
+		{
+		//	Toast.makeText(this.context, "Matrícula ou senha inválida", Toast.LENGTH_LONG).show();
+			invalido=true;
+			cancel(true);
+		}
 
 		return resposta;
+
 	}
 
 	@Override
 	protected void onPostExecute(String resposta) {
-		Intent intent = new Intent(context, Detalhes.class);
-		intent.putExtra(Detalhes.MESSAGE_RESPOSTA, resposta);
+		Intent intent = new Intent(context, EmprestimoActivity.class);
+		intent.putExtra(EmprestimoActivity.MESSAGE_RESPOSTA, resposta);
 		context.startActivity(intent);
 		progressDialog.dismiss();
 	}
@@ -81,7 +78,7 @@ public class ParserDetails extends AsyncTask<String, Void, String> {
 		progressDialog = new ProgressDialog(context);
 		progressDialog.setCanceledOnTouchOutside(false);
 		// progressDialog.show(context, "Aguarde", "Buscando resultados...");
-		progressDialog.setMessage("Buscando resultados!");
+		progressDialog.setMessage("conectando !");
 		progressDialog.setTitle("Aguarde");
 		progressDialog.show();
 		progressDialog.setOnCancelListener(new OnCancelListener() {
@@ -93,12 +90,17 @@ public class ParserDetails extends AsyncTask<String, Void, String> {
 			}
 		});
 	}
-	
+
 	@Override
 	protected void onCancelled(String result) {
-//		Toast.makeText(this.context, "Cancelado", Toast.LENGTH_SHORT).show();
-		
-	
+		progressDialog.dismiss();
+		String msg;
+		if(invalido)
+			msg="Matrícula ou senha inválida. Cuidado para não bloquear!";
+		else
+			msg="Cancelado!";
+		Toast.makeText(this.context,msg, Toast.LENGTH_SHORT).show();
+
 	}
 	
 	
